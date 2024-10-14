@@ -63,6 +63,86 @@
       font-weight: bold;
     }
     
+    .success-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background:#F7F7F7; /* Gradient background */
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    height: 100vh; /* Full screen */
+    position: relative; /* For absolute positioning of the close button */
+    overflow: hidden;
+}
+
+/* Adjust styles for the new animated GIF or SVG */
+.plane-icon {
+    width: 200px; /* Adjust size accordingly */
+    height: auto;
+    margin-bottom: 20px;
+}
+
+
+/* Success title styling */
+.success-title {
+    font-size: 2.5rem;
+    color:rgb(57, 55, 55);
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Subtitle styling */
+.success-subtitle {
+    font-size: 1.2rem;
+    color: rgb(57, 55, 55);
+    margin: 10px 0 30px 0;
+}
+
+/* Done button styling */
+.done-btn {
+    font-size: 1rem;
+    color: rgb(113, 113, 240);
+    border: 2px solid rgb(58, 54, 66);
+    background-color: transparent;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.done-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Close icon */
+.close-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.5rem;
+    color:#F7F7F7;
+    cursor: pointer;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 600px) {
+    .success-title {
+        font-size: 2rem;
+    }
+    
+    .success-subtitle {
+        font-size: 1rem;
+    }
+    
+    .done-btn {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+}
+
   </style>
 </head>
 <body>
@@ -310,7 +390,13 @@
       </div>
     </div>
   </div>
-
+<div id="form-submitted" class="success-message" style="display: none;">
+    <img src="/Tick.gif" class="plane-icon" alt="Success animation" /> <!-- New image here -->
+    <h1 class="success-title">SUCCESS</h1>
+    <p class="success-subtitle">Your application has been submitted!</p>
+    <button class="done-btn">I'M DONE</button>
+    <div class="confetti-container"></div>
+</div>
   <!-- Bootstrap JS and dependencies (Popper.js and jQuery) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -353,6 +439,75 @@ function toggleIntegrationInput(show) {
 }
 
     
+// Listen for form submission
+document.getElementById('websiteForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent actual form submission
+    console.log("Form submitted");
+
+    const formData = new FormData(this);
+    fetch(this.action, {
+        method: this.method,
+        body: formData,
+    })
+    .then(response => {
+        console.log("Response received", response);
+        if (response.ok) {
+            console.log("Submission successful");
+            document.querySelector('.card').style.display = 'none'; // Hide the form card
+            const successMessage = document.getElementById('form-submitted');
+            successMessage.style.display = 'flex'; // Show the success message
+            
+            // Start the confetti effect
+            createConfetti();
+
+            // Automatically redirect to the form page after 5 seconds
+            setTimeout(() => {
+                window.location.href = '/'; // Replace with the actual form page URL
+            }, 5000);
+
+        } else {
+            console.error("Submission failed");
+            alert("There was a problem with the submission. Please try again.");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("There was a problem with the submission. Please try again.");
+    });
+});
+
+// Handle the "I'm Done" button click
+document.querySelector('.done-btn').addEventListener('click', function() {
+    // Redirect to the form page immediately
+    window.location.href = '/'; // Replace with the actual form page URL
+});
+
+// Handle the "Close (X)" button click
+document.querySelector('.close-icon').addEventListener('click', function() {
+    const successMessage = document.getElementById('form-submitted');
+    successMessage.style.display = 'none'; // Hide the success message
+});
+
+// Function to create confetti
+function createConfetti() {
+    const container = document.querySelector('.confetti-container');
+    container.innerHTML = ''; // Clear previous confetti if any
+    for (let i = 0; i < 100; i++) { // Number of confetti pieces
+        const confettiPiece = document.createElement('div');
+        confettiPiece.classList.add('confetti');
+        confettiPiece.style.backgroundColor = getRandomColor(); // Random color
+        confettiPiece.style.left = `${Math.random() * 100}vw`; // Random horizontal position
+        confettiPiece.style.animationDelay = `${Math.random() * 2}s`; // Random delay
+        container.appendChild(confettiPiece);
+    }
+}
+
+// Function to get random colors
+function getRandomColor() {
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FFC300'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
 
   </script>
 </body>
